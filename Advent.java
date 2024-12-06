@@ -130,7 +130,7 @@ class Advent {
             sum += getMuls(line);
         }
 
-        System.err.println(sum);
+        System.out.println(sum);
     }
 
     static boolean mulsEnabled = true;
@@ -178,7 +178,7 @@ class Advent {
             }
         }
 
-        System.err.println(numXmas);
+        System.out.println(numXmas);
     }
 
     static int getXmasAt(int row, int col, List<List<Character>> map) {
