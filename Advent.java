@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 class Advent {
     public static void main(String[] args) throws FileNotFoundException {
-        puzzleFive();
+        puzzleSix();
     }
 
     static void puzzleOne() throws FileNotFoundException {
@@ -312,5 +312,131 @@ class Advent {
         }
 
         System.out.println(sum);
+    }
+
+    static void puzzleSix() throws FileNotFoundException {
+        Scanner in = new Scanner(new File("./inputs/puzzleSix.txt"));
+        List<List<Character>> graph = new ArrayList<>();
+
+        while (in.hasNext()) {
+            String line = in.nextLine();
+            graph.add(new ArrayList<>(line.chars().mapToObj(c -> (char) c).toList()));
+        }
+
+        for (int row = 0; row < graph.size(); row++) {
+            for (int col = 0; col < graph.get(0).size(); col++) {
+                char c = graph.get(row).get(col);
+                if (Set.of('^', '<', '>', 'v').contains(c)) {
+                    // Found the guard. Now try putting an obstruction in every possible cell and see if we infinite loop, halting problem :)
+                    for (int objRow = 0; objRow < graph.size(); objRow++) {
+                        for (int objCol = 0; objCol < graph.get(0).size(); objCol++) {
+                            if (objRow == row && objCol == col) {
+                                continue;
+                            }
+
+                            if (graph.get(objRow).get(objCol) != '#') {
+                                graph.get(objRow).set(objCol, '#');
+                                moveGuard(row, col, graph, c);
+                                graph.get(objRow).set(objCol, '.');
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Part A
+        // int positions = 0;
+        // for (int row = 0; row < graph.size(); row++) {
+        //     for (int col = 0; col < graph.get(0).size(); col++) {
+        //         char c = graph.get(row).get(col);
+        //         if (c == 'X') {
+        //             positions++;
+        //         }
+        //     }
+        // }
+
+        System.out.println(positions);
+    }
+
+    static int positions = 0;
+
+    static void moveGuard(int row, int col, List<List<Character>> graph, char direction) {
+
+        int INFINITE_MOVES = 1000000;
+        int moves = 0;
+
+        while (moves < INFINITE_MOVES) {
+            if (row < 0 || row >= graph.size() || col < 0 || col >= graph.get(0).size()) {
+                return;
+            }
+
+            while (wallInFrontOfGuard(row, col, graph, direction)) {
+                direction = turnGuard(direction);
+            }
+
+            switch (direction) {
+            case '^':
+                row--;
+                break;
+            case '>':
+                col++;
+                break;
+            case 'v':
+                row++;
+                break;
+            case '<':
+                col--;
+                break;
+            }
+            moves++;
+        }
+
+        positions++;
+
+        // Part A
+        // graph.get(row).set(col, 'X');
+    }
+
+    static boolean wallInFrontOfGuard(int row, int col, List<List<Character>> graph, char direction) {
+        switch (direction) {
+            case '^':
+                return row > 0 && graph.get(row - 1).get(col) == '#';
+            case '>':
+                return col < graph.get(0).size() - 1 && graph.get(row).get(col + 1) == '#';
+            case 'v':
+                return row < graph.size() - 1 && graph.get(row + 1).get(col) == '#';
+            case '<':
+                return col > 0 && graph.get(row).get(col - 1) == '#';
+            default:
+                return false;
+        }
+    }
+
+    static char turnGuard(char c) {
+        switch (c) {
+            case '^':
+                return '>';
+            case '>':
+                return 'v';
+            case 'v':
+                return '<';
+            case '<':
+                return '^';
+        }
+        return 0;
+    }
+
+    static String graphToString(List<List<Character>> graph) {
+        StringBuilder sb = new StringBuilder("\n");
+
+        for (int row = 0; row < graph.size(); row++) {
+            for (int col = 0; col < graph.get(0).size(); col++) {
+                sb.append(graph.get(row).get(col));
+            }
+            sb.append('\n');
+        }
+
+        return sb.toString();
     }
 }
