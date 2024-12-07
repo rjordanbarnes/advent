@@ -4,17 +4,19 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 class Advent {
     public static void main(String[] args) throws FileNotFoundException {
-        puzzleFour();
+        puzzleFive();
     }
 
     static void puzzleOne() throws FileNotFoundException {
@@ -168,6 +170,7 @@ class Advent {
 
         for (int row = 0; row < map.size(); row++) {
             for (int col = 0; col < map.get(0).size(); col++) {
+                // Part A
                 // if (map.get(row).get(col).equals('X')) {
                 //     numXmas += getXmasAt(row, col, map);
                 // }
@@ -240,7 +243,7 @@ class Advent {
         int numS = 0;
 
         int[] offRows = {-1, -1, 1, 1};
-        int[] offCols = {-1, 1, -1, 1};
+        int[] offCols = {-1,  1,-1, 1};
 
         for (int i = 0; i < offRows.length; i++) {
             int currRow = row + offRows[i];
@@ -254,5 +257,60 @@ class Advent {
         }
 
         return numM == 2 && numS == 2;
+    }
+
+    static void puzzleFive() throws FileNotFoundException {
+        Scanner in = new Scanner(new File("./inputs/puzzleFive.txt"));
+        // Integer requires all ints in Set (if they appear in sequence)
+        Map<String, Set<String>> reqs = new HashMap<>();
+
+        // Rules
+        while (in.hasNext()) {
+            String line = in.nextLine();
+
+            if (line.isBlank()) {
+                break;
+            }
+
+            String[] splitLine = line.split("\\|");
+            String pre = splitLine[0];
+            String post = splitLine[1];
+
+            if (!reqs.containsKey(post)) {
+                reqs.put(post, new HashSet<>());
+            }
+
+            reqs.get(post).add(pre);
+        }
+
+        int sum = 0;
+
+        // Updates
+        while (in.hasNext()) {
+            String line = in.nextLine();
+            List<String> pages = new ArrayList<>(Arrays.asList(line.split(",")));
+            boolean isValid = true;
+
+            for (int i = pages.size() - 1; i >= 0; i--) {
+                String currentPage = pages.get(i);
+
+                if (reqs.containsKey(currentPage)) {
+                    for (int j = pages.size() - 1; j > i; j--) {
+                        if (reqs.get(currentPage).contains(pages.get(j))) {
+                            isValid = false;
+                            pages.add(j + 1, currentPage);
+                            pages.remove(i);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!isValid) {
+                sum += Integer.parseInt(pages.get(pages.size() / 2));
+            }
+        }
+
+        System.out.println(sum);
     }
 }
