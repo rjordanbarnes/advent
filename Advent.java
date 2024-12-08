@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 class Advent {
     public static void main(String[] args) throws FileNotFoundException {
-        puzzleSix();
+        puzzleSeven();
     }
 
     static void puzzleOne() throws FileNotFoundException {
@@ -438,5 +438,34 @@ class Advent {
         }
 
         return sb.toString();
+    }
+
+    static void puzzleSeven() throws FileNotFoundException {
+        Scanner in = new Scanner(new File("./inputs/puzzleSeven.txt"));
+        long sum = 0;
+
+        while (in.hasNext()) {
+            String line = in.nextLine();
+            String[] splitColon = line.split(":");
+            long value = Long.parseLong(splitColon[0]);
+            List<Long> splitNumbers = new ArrayList<>(Arrays.asList(splitColon[1].trim().split(" ")).stream().map(Long::parseLong).toList());
+            
+            if (isEquation(value, splitNumbers, splitNumbers.size() - 1)) {
+                sum += value;
+            }
+        }
+
+        System.out.println(sum);
+    }
+
+    static boolean isEquation(long desiredValue, List<Long> numbers, int index) {
+        if (index == 0) {
+            return desiredValue == numbers.get(0);
+        }
+
+        boolean afterSubtraction = isEquation(desiredValue - numbers.get(index), numbers, index - 1);
+        boolean afterDivision = desiredValue % numbers.get(index) == 0 && isEquation(desiredValue / numbers.get(index), numbers, index - 1);
+
+        return afterSubtraction || afterDivision;
     }
 }
